@@ -1,0 +1,78 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.2.3'
+	id "org.openapi.generator" version "7.3.0"
+	id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.shopping'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// https://mvnrepository.com/artifact/org.springframework.data/spring-data-elasticsearch
+	implementation group: 'org.springframework.data', name: 'spring-data-elasticsearch', version: '5.2.3'
+	// https://mvnrepository.com/artifact/org.openapitools/jackson-databind-nullable
+	implementation group: 'org.openapitools', name: 'jackson-databind-nullable', version: '0.2.6'
+	// https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui
+	implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.7.0'
+	compileOnly 'org.projectlombok:lombok'
+	// https://mvnrepository.com/artifact/org.openapitools/openapi-generator-maven-plugin
+	compileOnly group: 'org.openapitools', name: 'openapi-generator-maven-plugin', version: '7.3.0'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+}
+var spec = "$rootDir/docs/openapi/api.yml"
+var generatedSourcesDir = "$buildDir/generated/openapi"
+
+openApiGenerate {
+	generatorName.set("spring")
+
+	inputSpec.set(spec)
+	outputDir.set(generatedSourcesDir)
+
+	apiPackage.set("org.openapi.api")
+	invokerPackage.set("org.openapi.invoker")
+	modelPackage.set("org.openapi.model")
+
+//	configOptions.set(mapOf(
+//			"dateLibrary" to "java17"
+//	))
+}
+
+sourceSets {
+	getByName("main") {
+		java {
+			srcDir("$generatedSourcesDir/src/main/java")
+		}
+	}
+}
+tasks {
+//	var openApiGenerate by getting
+//
+//	var compileJava by getting {
+//		dependsOn(openApiGenerate)
+//	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
